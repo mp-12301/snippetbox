@@ -10,12 +10,13 @@ import (
 func (app *application) routes(cfg config) http.Handler {
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 
-	dynamicMiddleware := alice.New(app.session.Enable)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+	dynamicRequireAuthMiddleware := dynamicMiddleware.Append(app.requireAuthentication)
 
 	mux := pat.New()
 	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
-	mux.Get("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippedForm))
-	mux.Post("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippet))
+	mux.Get("/snippet/create", dynamicRequireAuthMiddleware.ThenFunc(app.createSnippedForm))
+	mux.Post("/snippet/create", dynamicRequireAuthMiddleware.ThenFunc(app.createSnippet))
 	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
 
 	// Add the five new routes.
@@ -23,7 +24,7 @@ func (app *application) routes(cfg config) http.Handler {
 	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
 	mux.Get("/user/login", dynamicMiddleware.ThenFunc(app.loginUserForm))
 	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
-	mux.Post("/user/logout", dynamicMiddleware.ThenFunc(app.logoutUser))
+	mux.Post("/user/logout", dynamicRequireAuthMiddleware.ThenFunc(app.logoutUser))
 
 	fileServer := http.FileServer(http.Dir(cfg.StaticDir))
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
