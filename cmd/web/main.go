@@ -16,6 +16,10 @@ import (
 	"github.com/mp-12301/snippetbox/pkg/models/mysql"
 )
 
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
 type config struct {
 	Addr      string
 	StaticDir string

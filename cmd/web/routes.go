@@ -10,7 +10,7 @@ import (
 func (app *application) routes(cfg config) http.Handler {
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 
-	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf, app.authenticate)
 	dynamicRequireAuthMiddleware := dynamicMiddleware.Append(app.requireAuthentication)
 
 	mux := pat.New()

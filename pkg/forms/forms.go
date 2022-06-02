@@ -16,7 +16,6 @@ type Form struct {
 }
 
 func New(data url.Values) *Form {
-	fmt.Println()
 	return &Form{
 		data,
 		errors(map[string][]string{}),
@@ -34,6 +33,7 @@ func (f *Form) Required(fields ...string) {
 
 func (f *Form) MinLenght(field string, d int) {
 	value := f.Get(field)
+
 	if value == "" {
 		return
 	}
