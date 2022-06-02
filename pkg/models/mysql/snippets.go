@@ -3,6 +3,7 @@ package mysql
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/mp-12301/snippetbox/pkg/models"
 )
@@ -35,6 +36,7 @@ func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 	row := m.DB.QueryRow(stmt, id)
 
 	s := &models.Snippet{}
+	fmt.Println("test")
 
 	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 
