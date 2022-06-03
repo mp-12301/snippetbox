@@ -149,6 +149,12 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.session.Put(r, "authenticatedUserID", id)
+	lastURL := app.session.PopString(r, "lastURL")
+
+	if lastURL != "" {
+		http.Redirect(w, r, lastURL, http.StatusSeeOther)
+		return
+	}
 
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
