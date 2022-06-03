@@ -163,6 +163,21 @@ func (app *application) about(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "about.page.tmpl", nil)
 }
 
+func (app *application) profile(w http.ResponseWriter, r *http.Request) {
+	id := app.session.Get(r, "authenticatedUserID").(int)
+
+	u, err := app.users.Get(id)
+
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.render(w, r, "profile.page.tmpl", &templateData{
+		User: u,
+	})
+}
+
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }

@@ -15,6 +15,7 @@ type templateData struct {
 	Form            *forms.Form
 	Flash           string
 	Snippet         *models.Snippet
+	User            *models.User
 	Snippets        []*models.Snippet
 	IsAuthenticated bool
 }
