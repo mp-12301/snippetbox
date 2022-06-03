@@ -26,6 +26,7 @@ type config struct {
 	StaticDir string
 	Dsn       string
 	Secret    string
+	Debug     bool
 }
 
 type application struct {
@@ -44,6 +45,7 @@ type application struct {
 		ChangePassword(int, string, string) error
 	}
 	templateCache map[string]*template.Template
+	debug         bool
 }
 
 func main() {
@@ -52,6 +54,7 @@ func main() {
 	flag.StringVar(&cfg.StaticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.StringVar(&cfg.Dsn, "dsn", "web:foobar@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.StringVar(&cfg.Secret, "secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
+	flag.BoolVar(&cfg.Debug, "debug", false, "Debug mode")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -81,6 +84,7 @@ func main() {
 		users:         &mysql.UserModel{DB: db},
 		templateCache: templateCache,
 		session:       session,
+		debug:         cfg.Debug,
 	}
 
 	tlsConfig := &tls.Config{
