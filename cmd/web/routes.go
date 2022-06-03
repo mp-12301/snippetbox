@@ -32,6 +32,8 @@ func (app *application) routes(cfg config) http.Handler {
 	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
 	mux.Post("/user/logout", dynamicRequireAuthMiddleware.ThenFunc(app.logoutUser))
 	mux.Get("/user/profile", dynamicRequireAuthMiddleware.ThenFunc(app.profile))
+	mux.Get("/user/change-password", dynamicRequireAuthMiddleware.ThenFunc(app.changePasswordForm))
+	mux.Post("/user/change-password", dynamicRequireAuthMiddleware.ThenFunc(app.changePassword))
 
 	// Healthcheck
 	mux.Get("/ping", http.HandlerFunc(ping))

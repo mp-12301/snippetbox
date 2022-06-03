@@ -181,3 +181,47 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
+
+func (app *application) changePasswordForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "password.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (app *application) changePassword(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("currentPassword", "newPassword", "confirmPassword")
+	form.MinLenght("newPassword", 10)
+	form.MinLenght("confirmPassword", 10)
+	if form.Get("newPassword") != form.Get("confirmPassword") {
+		form.Errors.Add("confirmPassword", "Passwords do not match")
+	}
+
+	if !form.Valid() {
+		app.render(w, r, "password.page.tmpl", &templateData{Form: form})
+		return
+	}
+
+	id := app.session.GetInt(r, "authenticatedUserID")
+
+	err = app.users.ChangePassword(id, form.Get("currentPassword"), form.Get("newPassword"))
+	if err != nil {
+		if errors.Is(err, models.ErrorInvalidCredentials) {
+			form.Errors.Add("currentPassword", "Entered the wrong value in current password")
+			app.render(w, r, "password.page.tmpl", &templateData{Form: form})
+			return
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.session.Put(r, "flash", "Password has been successfully changed")
+
+	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
+}
